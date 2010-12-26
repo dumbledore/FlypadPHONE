@@ -7,7 +7,7 @@ package org.flypad.flypad;
 
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
-import org.flypad.connection.FlypadClient;
+import org.flypad.connection.Client;
 
 /**
  *
@@ -15,11 +15,12 @@ import org.flypad.connection.FlypadClient;
  */
 public class MenuCanvas extends Canvas {
     private final FlypadMIDlet midlet;
-    private final FlypadClient client;
+    private final Client client;
 
     public MenuCanvas(final FlypadMIDlet midlet) {
         this.midlet = midlet;
-        this.client = midlet.getManager();
+        this.client = midlet.getClient();
+        System.out.println("Client: " + (client == null));
     }
 
     protected void paint(Graphics g) {
@@ -27,6 +28,9 @@ public class MenuCanvas extends Canvas {
     }
 
     protected void keyPressed(final int key) {
-//        manager.send();
+        final String s = "Sample data: " + key;
+        System.out.println(s);
+        System.out.println(client == null);
+        client.send(s.getBytes());
     }
 }

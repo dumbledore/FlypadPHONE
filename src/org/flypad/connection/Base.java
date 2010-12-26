@@ -13,7 +13,7 @@ import javax.bluetooth.UUID;
  *
  * @author albus
  */
-public abstract class SimpleConnection {
+public abstract class Base {
     /**
      * Bluetooth Service name
      */

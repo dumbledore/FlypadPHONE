@@ -6,7 +6,7 @@
 package org.flypad.flypad;
 
 import javax.microedition.midlet.*;
-import org.flypad.connection.FlypadClient;
+import org.flypad.connection.Client;
 import java.io.IOException;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
@@ -17,19 +17,22 @@ import javax.microedition.lcdui.Displayable;
  */
 public class FlypadMIDlet extends MIDlet {
 
-    private final FlypadClient client;
-    private final MenuCanvas menu = new MenuCanvas(this);
+    private final Client client;
+    private final MenuCanvas menu;
 
     public FlypadMIDlet() {
         try {
-            client = new FlypadClient();
+            client = new Client();
+            System.out.println("New client was created.");
         } catch (IOException e) {
-        e.printStackTrace();
-        throw new RuntimeException();
-    }
+            e.printStackTrace();
+            throw new IllegalStateException(e.toString());
+        }
 
+        menu = new MenuCanvas(this);
     }
-    public final FlypadClient getManager() {
+    
+    public final Client getClient() {
         return client;
     }
 
