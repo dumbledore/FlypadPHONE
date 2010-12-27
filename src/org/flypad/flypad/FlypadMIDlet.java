@@ -21,15 +21,15 @@ public class FlypadMIDlet extends MIDlet {
     private final MenuCanvas menu;
 
     public FlypadMIDlet() {
+        menu = new MenuCanvas(this);
+
         try {
-            client = new Client();
-            System.out.println("New client was created.");
+            client = new Client(menu);
+            menu.log("New client was created.");
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException(e.toString());
         }
-
-        menu = new MenuCanvas(this);
     }
     
     public final Client getClient() {

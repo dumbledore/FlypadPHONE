@@ -13,6 +13,7 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import org.flypad.util.DataQueue;
+import org.flypad.util.Logger;
 
 /**
  *
@@ -27,16 +28,21 @@ public class Transmission extends Thread {
 
     private DataQueue queue = new DataQueue(128);
 
+    private final Logger logger;
+
     public Transmission(
             final DiscoveryAgent discoveryAgent,
-            final UUID uuid
+            final UUID uuid,
+            final Logger logger
             ) {
+
         this.discoveryAgent = discoveryAgent;
         this.uuid = uuid;
+        this.logger = logger;
     }
 
     private void connect() throws IOException {
-        System.out.println("Searching for host...");
+        logger.log("Searching for host...");
         final String url = discoveryAgent.selectService(
                 uuid,
                 ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
@@ -46,10 +52,11 @@ public class Transmission extends Thread {
             throw new IOException("Couldn't find host");
         }
 
-        System.out.println("Host found. Connecting...");
+        logger.log("Host found. Connecting...");
+        logger.log(url);
 
         server = (StreamConnection) Connector.open(url);
-        System.out.println("Connected!");
+        logger.log("Connected!");
     }
 
     public final void run() {
@@ -64,15 +71,16 @@ public class Transmission extends Thread {
              */
             DataOutputStream send = server.openDataOutputStream();
 
-            System.out.println("Start sending data...");
+            logger.log("Start sending data...");
 
             try {
                 while(alive) {
                     if (!queue.isEmpty()) {
                         byte[] data = queue.dequeue();
                         if (data != null) {
-                            System.out.println("[SENDING]: "
+                            logger.log("[SENDING]: "
                                     + new String(data));
+                            send.writeShort((short) data.length);
                             send.write(data);
                             send.flush();
                         }
@@ -87,7 +95,7 @@ public class Transmission extends Thread {
     }
 
     public final void send(final byte[] data) {
-        System.out.println("[ENQUEUE]: "
+        logger.log("[ENQUEUE]: "
                 + new String(data));
 
         queue.enqueue(data);

@@ -7,6 +7,7 @@ package org.flypad.connection;
 
 import java.io.IOException;
 import javax.bluetooth.LocalDevice;
+import org.flypad.util.Logger;
 
 /**
  *
@@ -15,8 +16,9 @@ import javax.bluetooth.LocalDevice;
 public class Client extends Base {
     
     private Transmission transmission;
+    private final Logger logger;
 
-    public Client() throws IOException {
+    public Client(final Logger logger) throws IOException {
         /*
          * Retrieve the local device to get to the Bluetooth Manager
          */
@@ -27,13 +29,15 @@ public class Client extends Base {
          */
         discoveryAgent = localDevice.getDiscoveryAgent();
 
-        System.out.println("Client created.");
+        this.logger = logger;
+
+        logger.log("Client created.");
     }
 
     public final void connect() throws IOException {
         if (transmission == null) {
-            System.out.println("Attempting transmission...");
-            transmission = new Transmission(discoveryAgent, serviceUUID);
+            logger.log("Attempting transmission...");
+            transmission = new Transmission(discoveryAgent, serviceUUID, logger);
             transmission.start();
         }
     }
