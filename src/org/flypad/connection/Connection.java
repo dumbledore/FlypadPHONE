@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package org.flypad.util;
+package org.flypad.connection;
 
 /**
  *
  * @author albus
  */
-public interface Logger {
-    public void log(final String message);
+public interface Connection extends DataListener {
+    public void send(byte[] data);
 }

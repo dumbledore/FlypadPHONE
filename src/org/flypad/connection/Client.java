@@ -6,27 +6,24 @@
 package org.flypad.connection;
 
 import java.io.IOException;
-import javax.bluetooth.DeviceClass;
-import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.LocalDevice;
-import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
-import org.flypad.util.Logger;
+import org.flypad.util.log.Logger;
 
 /**
  *
  * @author albus
  */
-public class Client extends Base implements DiscoveryListener {
+public class Client extends ManagedConnection {
     
-    private Transmission transmission;
-    private final Logger logger;
-    private RemoteDevice remote;
+    public Client(
+            final DataListener dataListener,
+            final Logger logger)
+            throws IOException {
 
-    public Client(final Logger logger) throws IOException {
+        super(dataListener, logger);
         /*
          * Retrieve the local device to get to the Bluetooth Manager
          */
@@ -37,65 +34,81 @@ public class Client extends Base implements DiscoveryListener {
          */
         discoveryAgent = localDevice.getDiscoveryAgent();
 
-        this.logger = logger;
-
         logger.log("Client created.");
+
+        connect();
     }
 
-    public final void connect() throws IOException {
-        if (transmission == null) {
-            logger.log("Attempting transmission...");
-            transmission = new Transmission(discoveryAgent, serviceUUID, logger);
+    private final void connect() throws IOException {
+        logger.log("Searching for host...");
 
-            logger.log("Searching for host...");
-            discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
-//            final String url = discoveryAgent.selectService(
-//                    serviceUUID,
-//                    ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
-//                    false);
+        final String url = discoveryAgent.selectService(
+                serviceUUID,
+                ServiceRecord.NOAUTHENTICATE_NOENCRYPT,
+                false);
+
+        if (url == null) {
+            throw new IOException("Couldn't find host");
+        }
+
+        logger.log("Host found. Connecting...");
+        logger.log(url);
+
+        StreamConnection connection = (StreamConnection) Connector.open(url);
+        logger.log("Connected!");
+        
+        this.connection = new PhysicalConnection(connection, dataListener);
+    }
+
+    public void send(byte[] data) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void receive(byte[] data) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+//    class ServerDiscoverer implements DiscoveryListener {
+//        private volatile boolean searching = false;
+//        private RemoteDevice remote = null;
 //
-//            if (url == null) {
-//                throw new IOException("Couldn't find host");
+//        public void search() {
+//            if (searching == false) {
+//                try {
+//                    searching = true;
+//                    logger.log("Searching for host...");
+//                    discoveryAgent.startInquiry(DiscoveryAgent.GIAC, this);
+//                } catch (Exception e) {
+//                    logger.log(e.toString());
+//                }
 //            }
+//        }
 //
-//            logger.log("Host found. Connecting...");
-//            logger.log(url);
-
-//            server = (StreamConnection) Connector.open(url);
-//            logger.log("Connected!");
-        }
-    }
-
-    public final void send(final byte[] data) {
-        if (transmission != null) {
-            transmission.send(data);
-        }
-    }
-
-    public void deviceDiscovered(RemoteDevice rd, DeviceClass dc) {
-        logger.log("Discovered " + rd.getBluetoothAddress());
-        remote = rd;
-        try {
-            logger.log(rd.getFriendlyName(false));
-        } catch (IOException e) {
-            logger.log(e.toString());
-        }
-    }
-
-    public void inquiryCompleted(int i) {
-        logger.log("inquiery completed!");
-        try {
-            discoveryAgent.searchServices(null, uuids, remote, this);
-        } catch (IOException e) {
-            logger.log(e.toString());
-        }
-    }
-
-    public void serviceSearchCompleted(int i, int i1) {
-        
-    }
-
-    public void servicesDiscovered(int i, ServiceRecord[] srs) {
-        
-    }
+//        public void deviceDiscovered(RemoteDevice rd, DeviceClass dc) {
+//            logger.log("Discovered " + rd.getBluetoothAddress());
+//            remote = rd;
+//            try {
+//                logger.log(rd.getFriendlyName(false));
+//            } catch (IOException e) {
+//                logger.log(e.toString());
+//            }
+//        }
+//
+//        public void inquiryCompleted(int i) {
+//            logger.log("inquiery completed!");
+//            try {
+//                discoveryAgent.searchServices(null, uuids, remote, this);
+//            } catch (IOException e) {
+//                logger.log(e.toString());
+//            }
+//        }
+//
+//        public void serviceSearchCompleted(int i, int i1) {
+//
+//        }
+//
+//        public void servicesDiscovered(int i, ServiceRecord[] srs) {
+//
+//        }
+//    }
 }

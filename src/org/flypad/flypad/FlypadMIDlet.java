@@ -17,32 +17,15 @@ import javax.microedition.lcdui.Displayable;
  */
 public class FlypadMIDlet extends MIDlet {
 
-    private final Client client;
     private final MenuCanvas menu;
 
     public FlypadMIDlet() {
-        menu = new MenuCanvas(this);
-
-        try {
-            client = new Client(menu);
-            menu.log("New client was created.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IllegalStateException(e.toString());
-        }
-    }
-    
-    public final Client getClient() {
-        return client;
+        menu = new MenuCanvas();
     }
 
     public void startApp() {
-        try {
-            client.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         switchDisplayable(null, menu);
+        menu.createConnection();
     }
 
     public void pauseApp() {
