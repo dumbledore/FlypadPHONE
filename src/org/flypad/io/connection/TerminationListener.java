@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package org.flypad.connection;
+package org.flypad.io.connection;
 
 /**
  *
  * @author albus
  */
-public interface Connection extends DataListener {
-    public void send(byte[] data);
+interface TerminationListener {
+    void terminated();
 }

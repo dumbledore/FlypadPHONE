@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.flypad.connection;
+package org.flypad.io.connection;
 
 /**
  *

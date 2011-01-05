@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.flypad.connection;
+package org.flypad.io.connection;
 
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -14,7 +14,8 @@ import org.flypad.util.log.Logger;
  *
  * @author albus
  */
-abstract class ManagedConnection implements Connection {
+abstract class ManagedConnection
+        implements Connection, TerminationListener {
     /**
      * Bluetooth Service name
      */
@@ -24,7 +25,8 @@ abstract class ManagedConnection implements Connection {
      * Bluetooth Service UUID of interest
      */
     protected static final String SERVICE_UUID =
-            "2d26618601fb47c28d9f10b8ec891363";
+            "8b58b6b2c6c749a6b154bf81033aa702";
+//            "2d26618601fb47c28d9f10b8ec891363";
 
     protected UUID serviceUUID = new UUID(SERVICE_UUID, false);
 
@@ -41,7 +43,7 @@ abstract class ManagedConnection implements Connection {
     protected DiscoveryAgent discoveryAgent;
 
     protected final DataListener dataListener;
-    protected PhysicalConnection connection;
+    protected TwoWayConnection connection;
     protected final Logger logger;
 
     public ManagedConnection(
@@ -58,7 +60,12 @@ abstract class ManagedConnection implements Connection {
     }
 
     public void receive(byte[] data) {
-        logger.log(new String(data));
         dataListener.receive(data);
+    }
+
+    public void close() {
+        if (connection != null) {
+            connection.close();
+        }
     }
 }

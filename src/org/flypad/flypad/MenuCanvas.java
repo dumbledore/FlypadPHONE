@@ -5,34 +5,18 @@
 
 package org.flypad.flypad;
 
-import org.flypad.connection.Connection;
-import org.flypad.connection.DataListener;
-import org.flypad.connection.Server;
+import org.flypad.command.CommandDispatcher;
 import org.flypad.util.log.CanvasLogger;
 
 /**
  *
  * @author albus
  */
-public class MenuCanvas
-        extends CanvasLogger
-        implements DataListener {
+public class MenuCanvas extends CanvasLogger {
+
+    final CommandDispatcher dispatcher = new CommandDispatcher(this);
     
-    private Connection connection;
-
-    public void createConnection() {
-        try {
-            connection = new Server(this, this);
-        } catch (Throwable t) {
-            log(t.getMessage());
-        }
-    }
-
     protected void keyPressed(final int key) {
-        connection.send(("X: " + key).getBytes());
-    }
-
-    public void receive(final byte[] data) {
-        log("{R} " + new String(data));
+//        connection.send(("X: " + key).getBytes());
     }
 }

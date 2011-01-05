@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package org.flypad.connection;
+package org.flypad.io.connection;
 
+import org.flypad.util.SimpleThread;
 import java.io.IOException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -26,8 +27,8 @@ public class Server extends ManagedConnection {
             "btspp://localhost:" + serviceUUID.toString() + ";"
             + "name=" + serviceName;
 
-    private final StreamConnectionNotifier server;
-    private final ClientManager discoverer = new ClientManager(this);
+    private final StreamConnectionNotifier connectionNotifier;
+    private final ClientDiscoverer discoverer = new ClientDiscoverer(this);
 
     public Server(
             final DataListener dataListener,
@@ -51,27 +52,35 @@ public class Server extends ManagedConnection {
         /*
          * Create a server connection (a notifier)
          */
-        server = (StreamConnectionNotifier) Connector.open(connURL);
+        connectionNotifier = (StreamConnectionNotifier) Connector.open(connURL);
         logger.log("Server is running...");
         discoverer.start();
     }
 
-    class ClientManager extends Thread {
-        private final DataListener dataListener;
-        private volatile boolean alive = true;
+    public final void terminated() {
+        logger.log("Connection terminated.");
+    }
 
-        ClientManager(final DataListener dataListener) {
-            this.dataListener = dataListener;
+    public final void close() {
+        discoverer.kill();
+        super.close();
+    }
+
+    class ClientDiscoverer extends SimpleThread {
+        private final Server server;
+
+        ClientDiscoverer(final Server server) {
+            this.server = server;
         }
 
         public void run() {
-            while (alive) {
+            while (isWorking()) {
                 try {
                     /*
                      * Accept a new client connection
                      */
                     logger.log("Awaiting client connection...");
-                    StreamConnection client = server.acceptAndOpen();
+                    StreamConnection client = connectionNotifier.acceptAndOpen();
 
                     /*
                      * Get a handle on the connection
@@ -80,7 +89,7 @@ public class Server extends ManagedConnection {
                     logger.log("New client connection to "
                             + remote.getFriendlyName(false));
 
-                    connection = new PhysicalConnection(client, dataListener);
+                    connection = new TwoWayConnection(server, client, server);
                 } catch (IOException e) {
                     logger.log(e.toString());
                 }

@@ -6,8 +6,6 @@
 package org.flypad.flypad;
 
 import javax.microedition.midlet.*;
-import org.flypad.connection.Client;
-import java.io.IOException;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
@@ -25,13 +23,14 @@ public class FlypadMIDlet extends MIDlet {
 
     public void startApp() {
         switchDisplayable(null, menu);
-        menu.createConnection();
+        menu.dispatcher.initialize();
     }
 
     public void pauseApp() {
     }
 
     public void destroyApp(boolean unconditional) {
+        menu.dispatcher.close();
     }
 
     public void switchDisplayable(Alert alert, Displayable nextDisplayable) {
