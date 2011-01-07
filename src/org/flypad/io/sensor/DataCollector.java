@@ -9,6 +9,8 @@ import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.sensor.Data;
 import javax.microedition.sensor.SensorConnection;
+import javax.microedition.sensor.SensorInfo;
+import javax.microedition.sensor.SensorManager;
 import org.flypad.util.SimpleThread;
 
 /**
@@ -32,8 +34,11 @@ public class DataCollector extends SimpleThread{
     }
 
     private void findSensor() throws IOException {
-        this.sensor = (SensorConnection) Connector.open(
-                "sensor:acceleration;contextType=user;model=SMB380;location=device");
+        SensorInfo[] sensors = SensorManager.findSensors("acceleration", null);
+        if (sensors.length > 0) {
+            this.sensor =
+                    (SensorConnection) Connector.open(sensors[0].getUrl());
+        }
     }
 
     public void run() {

@@ -9,28 +9,32 @@ import javax.microedition.midlet.*;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import org.flypad.command.CommandDispatcher;
 
 /**
  * @author albus
  */
 public class FlypadMIDlet extends MIDlet {
 
-    private final MenuCanvas menu;
+    public final LoggingCanvas logger = new LoggingCanvas(this);
+    public final CommandDispatcher dispatcher = new CommandDispatcher(logger);
+    public final DrivingWheelCanvas dwcanvas = new DrivingWheelCanvas(this);
 
-    public FlypadMIDlet() {
-        menu = new MenuCanvas();
+    {
+        logger.setFullScreenMode(true);
+        dwcanvas.setFullScreenMode(true);
     }
 
     public void startApp() {
-        switchDisplayable(null, menu);
-        menu.dispatcher.initialize();
+        switchDisplayable(null, logger);
+        dispatcher.initializeConnection();
     }
 
     public void pauseApp() {
     }
 
     public void destroyApp(boolean unconditional) {
-        menu.dispatcher.close();
+        dispatcher.close();
     }
 
     public void switchDisplayable(Alert alert, Displayable nextDisplayable) {
